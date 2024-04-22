@@ -113,3 +113,13 @@ bool WebCommandParser::IsAlertStop() const
     return false;
 }
 
+bool WebCommandParser::IsConfigFirstStep(uint8_t& firstStep) const
+{
+    firstStep = 0;
+    if ((result_nr == 2) && (result[0] == 55) && ((result[1] & 0xF0) == 0xE0)) {
+        firstStep = result[1] & 0xF;
+        return true;
+    }
+    return false;
+}
+

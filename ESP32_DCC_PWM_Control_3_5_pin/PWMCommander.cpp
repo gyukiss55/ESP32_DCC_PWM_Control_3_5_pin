@@ -27,7 +27,7 @@
 #define PWM_RAILEN_OUT_PIN  4
 
 #define PWM_PERIOD          100
-#define PWM_CHANGE_PERIOD   500000
+#define PWM_CHANGE_PERIOD   200000
 #define PWM_BREAK_STEP      3
 
 volatile bool isrPWMdirectionNext;
@@ -41,8 +41,8 @@ volatile uint32_t isrTimerAlarmValue;
 bool reqPWMdirection;
 uint16_t reqPWMvalue;
 uint64_t isrBootTimeLoopLast;
-
-const uint8_t speedMap[] = {0,0,10,15,17,20,23,25,30,32,35,37,40,42,45,47,50,52,55,57,60,62,65,67,70,75,80,85,90,95,99};
+uint8_t firstStep = 1;
+const uint8_t speedMap[] = {0,20,23,25,27,30,32,34,36,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,75,80,85,90,95,99};
 
 
 void IRAM_ATTR OnTimerPWM() {
@@ -239,8 +239,16 @@ void ReadCommand(std::string& command)
 {
     bool direction = false;
     uint8_t speedValue = 0;
+    uint8_t firstStepTmp = 0;
 
     WebCommandParser parser(command);
+    if (parser.IsConfigFirstStep(firstStepTmp)) {
+       if (firstStepTmp > 0) {
+          firstStep = firstStepTmp;
+          Serial.print("first step:");
+          Serial.println(firstStep);
+       }
+    }
     if (parser.IsAlertStop()) {
         reqPWMvalue = 0;
         reqPWMdirection = true;
@@ -283,6 +291,8 @@ void UpdateDirAndPWMValue()
         }
         else {
             if (pwmValue < reqPWMvalue) {
+                if (pwmValue == 0 && firstStep > 0)
+                    pwmValue = speedMap[firstStep];
                 SetPWMCommand(dir, pwmValue + 1);
             }
             else if (pwmValue > reqPWMvalue) {

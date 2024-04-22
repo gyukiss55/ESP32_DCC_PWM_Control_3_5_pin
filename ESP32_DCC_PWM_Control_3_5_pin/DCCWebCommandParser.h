@@ -19,6 +19,7 @@ public:
     bool GetDirectionAndSpeed(bool& forward, uint8_t& speed) const;
     const uint8_t* GetCommand() const { return result; }
     bool IsAlertStop() const;
+    bool IsConfigFirstStep(uint8_t& firstStep) const;
 
 private:
     int ParseWebCommand(const std::string& command);

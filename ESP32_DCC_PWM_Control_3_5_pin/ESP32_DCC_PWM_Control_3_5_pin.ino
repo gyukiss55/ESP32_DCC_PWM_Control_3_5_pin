@@ -2,6 +2,8 @@
 
 #define _DCCSimpleWebServer_ 1
 
+#define version "1.01"
+
 #if defined DCC_Commander
 #include "DCCCommander.h"
 #else
@@ -15,9 +17,12 @@ void setup ()
 
 #if defined DCC_Commander
 	SetupDCCCommander ();
+  Serial.print("ESP32_DCC_PWM_Control_3_5_pin /DCC  Version ");
 #else
 	SetupPWMCommander();
+  Serial.print("ESP32_DCC_PWM_Control_3_5_pin /PWM  Version ");
 #endif
+  Serial.println(version);
 
 	SetupDCCWebServer();
 }

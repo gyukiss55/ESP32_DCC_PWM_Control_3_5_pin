@@ -2,3 +2,4 @@
 ESP32 DCC PWM Control 3-5 pin
 
 -1.0 Add source code
+-1.1 Set First Step value (address:55 command: En (n = First Step))
