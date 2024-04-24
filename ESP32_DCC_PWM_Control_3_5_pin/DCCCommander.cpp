@@ -299,20 +299,8 @@ void SetupDCCCommander()
 
 }
 
-void LoopDCCCommander(std::string& command)
+void DumpStatusDCC()
 {
-    WebCommandParser parser(command);
-    if (parser.GetCommandSize() > 0) {
-        portENTER_CRITICAL(&timerMux);
-        uint8_t chan = parser.GetChannel();
-        isrPacketRequest[chan][0] = parser.GetCommandSize();
-        for (uint8_t j = 1; j <= parser.GetCommandSize(); ++j) {
-            isrPacketRequest[chan][j] = parser.GetCommand()[j - 1];
-        }
-        portEXIT_CRITICAL(&timerMux);
-
-    }
-
     // If Timer has fired
     if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE) {
         uint32_t isrCount = 0, isrTime = 0;
@@ -332,5 +320,29 @@ void LoopDCCCommander(std::string& command)
         Serial.print((int32_t)bootTime);
         Serial.println(" us");
     }
+
+}
+
+void ReadWebCommandDCC(std::string& command)
+{
+    if (command.length() == 0)
+        return;
+    WebCommandParser parser(command);
+    if (parser.GetCommandSize() > 0) {
+        portENTER_CRITICAL(&timerMux);
+        uint8_t chan = parser.GetChannel();
+        isrPacketRequest[chan][0] = parser.GetCommandSize();
+        for (uint8_t j = 1; j <= parser.GetCommandSize(); ++j) {
+            isrPacketRequest[chan][j] = parser.GetCommand()[j - 1];
+        }
+        portEXIT_CRITICAL(&timerMux);
+
+    }
+}
+
+void LoopDCCCommander(std::string& command)
+{
+    ReadWebCommandDCC(command);
+    DumpStatusDCC();
 
 }

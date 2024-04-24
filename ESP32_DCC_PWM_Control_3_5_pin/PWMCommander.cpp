@@ -235,7 +235,7 @@ void DumpStatus()
     }
 
 }
-void ReadCommand(std::string& command)
+void ReadWebCommand(std::string& command)
 {
     bool direction = false;
     uint8_t speedValue = 0;
@@ -305,7 +305,7 @@ void UpdateDirAndPWMValue()
 void LoopPWMCommander(std::string& command)
 {
     if (command.size() > 0) 
-        ReadCommand(command);
+        ReadWebCommand(command);
 
     UpdateDirAndPWMValue();
 

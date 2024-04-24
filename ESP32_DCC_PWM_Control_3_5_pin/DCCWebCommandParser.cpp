@@ -85,7 +85,8 @@ WebCommandParser::WebCommandParser() : result_nr(0), chan(0)
 
 WebCommandParser::WebCommandParser(const std::string & command) : result_nr(0), chan(0)
 {
-    ParseWebCommand(command);
+    if (command.length() > 0)
+        ParseWebCommand(command);
 }
 
 bool WebCommandParser::GetDirectionAndSpeed(bool& forward, uint8_t& speed) const
