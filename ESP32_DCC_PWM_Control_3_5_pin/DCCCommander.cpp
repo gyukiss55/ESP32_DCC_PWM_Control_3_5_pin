@@ -4,11 +4,17 @@
 #define _DCCSimpleWebServer_ 1
 
 #include "Arduino.h"
+#define TIMER_BASE_CLK APB_CLK_FREQ
+
 #include "ESP32_DCC_PWM_Control_3_5_pin.h"
 #include "DCCWebCommandParser.h"
 #include "Common.h"
 
 #include "DCCCommander.h"
+
+#if defined DCC_Commander
+
+#include "ESP32TimerInterrupt.h"
 
 #define PARAMNAME_CHANNEL "ch"
 #define PARAMNAME_DCCVALUE "dcc"
@@ -217,9 +223,9 @@ void IRAM_ATTR OnTimerDCC() {
         }
     }
     if (isrBit)
-        timerAlarmWrite(timer, DCC_1HALFBITTIME, true);
+        timerAlarm(timer, DCC_1HALFBITTIME, true, 0);
     else
-        timerAlarmWrite(timer, DCC_0HALFBITTIME, true);
+        timerAlarm(timer, DCC_0HALFBITTIME, true, 0);
 
    //digitalWrite(DCC_RAIL2_OUT_PIN, false);//debug
    digitalWrite(DCC_RAILEN_OUT_PIN, true);
@@ -285,17 +291,18 @@ void SetupDCCCommander()
     // Use 1st timer of 4 (counted from zero).
     // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
     // info).
-    timer = timerBegin(0, 80, true);
+    //timer = timerBegin(0, 80, true);
+    timer = timerBegin(1000000);
 
     // Attach OnTimer function to our timer.
-    timerAttachInterrupt(timer, &OnTimerDCC, true);
+    timerAttachInterrupt(timer, &OnTimerDCC);
 
     // Set alarm to call OnTimer function every second (value in microseconds).
     // Repeat the alarm (third parameter)
-    timerAlarmWrite(timer, 1000000, true);
+    timerAlarm(timer, 1000000, true, 0);
 
     // Start an alarm
-    timerAlarmEnable(timer);
+    //timerAlarmEnable(timer);
 
 }
 
@@ -346,3 +353,5 @@ void LoopDCCCommander(std::string& command)
     DumpStatusDCC();
 
 }
+
+#endif //DCC_Commander

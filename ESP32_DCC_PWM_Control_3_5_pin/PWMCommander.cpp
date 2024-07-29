@@ -4,6 +4,10 @@
 #define _DCCSimpleWebServer_ 1
 
 #include "Arduino.h"
+#include <driver/timer.h>
+
+#define TIMER_BASE_CLK APB_CLK_FREQ
+
 
 #include "ESP32_DCC_PWM_Control_3_5_pin.h"
 #include "DCCWebCommandParser.h"
@@ -13,6 +17,10 @@
 
 // 4+1 bit control
 
+#if defined DCC_Commander
+#else
+
+#include "ESP32TimerInterrupt.h"
 
 #if defined DCC_4_PWM
 #define PWM_RAIL1_OUT_PIN  18
@@ -23,6 +31,7 @@
 #define PWM_RAIL1_OUT_PIN  17
 #define PWM_RAIL2_OUT_PIN  16
 #endif
+
 
 #define PWM_RAILEN_OUT_PIN  4
 
@@ -118,7 +127,7 @@ void IRAM_ATTR OnTimerPWM() {
                 isrTimerAlarmValue = isrPWMvalueNow;
         }
     }
-    timerAlarmWrite(timer, isrTimerAlarmValue, true);
+    timerAlarm(timer, isrTimerAlarmValue, true, 0);
 
     if (isrPWMvalueNow > 0)
         digitalWrite(PWM_RAILEN_OUT_PIN, true);
@@ -155,20 +164,25 @@ void SetupPWMCommander()
     // Create semaphore to inform us when the timer has fired
     timerSemaphore = xSemaphoreCreateBinary();
 
+    // old begin
     // Use 1st timer of 4 (counted from zero).
     // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
     // info).
-    timer = timerBegin(0, 80, true);
+    //timer = timerBegin(0, 80, true);
+    // old end
+    // 
+    // Set timer frequency to 1Mhz
+    timer = timerBegin(1000000);
 
     // Attach OnTimer function to our timer.
-    timerAttachInterrupt(timer, &OnTimerPWM, true);
+    timerAttachInterrupt(timer, &OnTimerPWM);
 
     // Set alarm to call OnTimer function every second (value in microseconds).
     // Repeat the alarm (third parameter)
-    timerAlarmWrite(timer, 1000000, true);
+    timerAlarm(timer, 1000000, true, 0);
 
     // Start an alarm
-    timerAlarmEnable(timer);
+    //timerAlarmEnable(timer);
 
 }
 
@@ -312,3 +326,5 @@ void LoopPWMCommander(std::string& command)
     DumpStatus();
 
 }
+
+#endif //DCC_Commander
