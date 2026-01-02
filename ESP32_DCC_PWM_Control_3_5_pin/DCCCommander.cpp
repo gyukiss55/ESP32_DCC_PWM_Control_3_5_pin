@@ -4,11 +4,17 @@
 #define _DCCSimpleWebServer_ 1
 
 #include "Arduino.h"
+#define TIMER_BASE_CLK APB_CLK_FREQ
+
 #include "ESP32_DCC_PWM_Control_3_5_pin.h"
 #include "DCCWebCommandParser.h"
 #include "Common.h"
 
 #include "DCCCommander.h"
+
+#if defined DCC_Commander
+
+//#include "ESP32TimerInterrupt.h"
 
 #define PARAMNAME_CHANNEL "ch"
 #define PARAMNAME_DCCVALUE "dcc"
@@ -288,6 +294,7 @@ void SetupDCCCommander()
     // Use 1st phaseTimer of 4 (counted from zero).
     // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
     // info).
+
     // phaseTimer = timerBegin(0, 80, true); // old
     phaseTimer = timerBegin(1000000); // new - 1 usec resolution
 
@@ -353,3 +360,5 @@ void LoopDCCCommander(std::string& command)
     DumpStatusDCC();
 
 }
+
+#endif //DCC_Commander

@@ -1,5 +1,7 @@
 // Common.h
 #include "Arduino.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/portmacro.h"
 
 extern portMUX_TYPE timerMux;
 extern portMUX_TYPE webCommandMux;

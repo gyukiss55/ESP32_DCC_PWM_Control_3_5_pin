@@ -10,7 +10,8 @@
 #include "LEDFunction.h"
 
 // Replace with your network credentials
-// const char* ssid = "RTAX999";
+
+//const char* ssid = "RTAX999";
 //const char* ssid = "RTAX999_EXT";
 //const char* password = "LiDoDa[959285]";
 //const char* password = "LiDoDa(959285)";

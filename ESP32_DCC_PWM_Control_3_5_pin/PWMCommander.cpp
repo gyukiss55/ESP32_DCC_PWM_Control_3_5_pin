@@ -5,6 +5,9 @@
 
 #include "Arduino.h"
 
+#define TIMER_BASE_CLK APB_CLK_FREQ
+
+
 #include "ESP32_DCC_PWM_Control_3_5_pin.h"
 #include "DCCWebCommandParser.h"
 #include "Common.h"
@@ -13,6 +16,10 @@
 
 // 4+1 bit control
 
+#if defined DCC_Commander
+#else
+
+#include "ESP32TimerInterrupt.h"
 
 #if defined DCC_4_PWM
 #define PWM_RAIL1_OUT_PIN  18
@@ -23,6 +30,7 @@
 #define PWM_RAIL1_OUT_PIN  17
 #define PWM_RAIL2_OUT_PIN  16
 #endif
+
 
 #define PWM_RAILEN_OUT_PIN  4
 
@@ -119,6 +127,7 @@ void IRAM_ATTR OnTimerPWM() {
                 isrTimerAlarmValue = isrPWMvalueNow;
         }
     }
+
     // timerAlarmWrite(phaseTimer, isrTimerAlarmValue, true); // old
     timerWrite(phaseTimer, 0); // new
     timerAlarm(phaseTimer, isrTimerAlarmValue, true, 0); // new
@@ -321,3 +330,5 @@ void LoopPWMCommander(std::string& command)
     DumpStatus();
 
 }
+
+#endif //DCC_Commander
