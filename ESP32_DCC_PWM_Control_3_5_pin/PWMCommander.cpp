@@ -19,7 +19,7 @@
 #if defined DCC_Commander
 #else
 
-#include "ESP32TimerInterrupt.h"
+//#include "ESP32TimerInterrupt.h"
 
 #if defined DCC_4_PWM
 #define PWM_RAIL1_OUT_PIN  18
