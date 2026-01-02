@@ -9,4 +9,4 @@ volatile uint32_t isrCounter = 0;
 volatile int64_t isrBootTime = 0;
 volatile uint32_t isrLoop = 0;
 
-hw_timer_t* timer = NULL;
+hw_timer_t* phaseTimer = NULL;

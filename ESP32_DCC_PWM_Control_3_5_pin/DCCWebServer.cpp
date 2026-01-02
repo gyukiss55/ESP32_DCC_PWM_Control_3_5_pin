@@ -4,11 +4,13 @@
 
 // Load Wi-Fi library
 #include <WiFi.h>
+#include <string.h>
 
 #include "DCCWebServer.h"
+#include "LEDFunction.h"
 
 // Replace with your network credentials
-const char* ssid = "RTAX999";
+// const char* ssid = "RTAX999";
 //const char* ssid = "RTAX999_EXT";
 //const char* password = "LiDoDa[959285]";
 //const char* password = "LiDoDa(959285)";
@@ -17,7 +19,7 @@ const char* password = "LiDoDa#959285$";
 //const char* ssid     = "HUAWEI P30";
 //const char* password = "6381bf07b666";
 
-//const char* ssid     = "ASUS_98_2G";
+const char* ssid     = "ASUS_98_2G";
 //const char* password = "LiDoDa#959285$";
 
 
@@ -42,21 +44,34 @@ void SetupDCCWebServer() {
 //    digitalWrite(output27, LOW);
 
     // Connect to Wi-Fi network with SSID and password
+
+
+    SetupLEDFunction();
+
+    SendMorze(std::string("SOS"));
+
     Serial.print("Esp32 DCC controller Simple V1.0 ");
 
     Serial.print("Connecting to ");
     Serial.println(ssid);
     Serial.println(password);
     WiFi.begin(ssid, password);
+    int64_t ti1 = esp_timer_get_time();
     while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
+        int64_t ti2 = esp_timer_get_time();
+        if (ti2 - ti1 > 500000LL) {
+            Serial.print(".");
+            ti1 = ti2;
+        }
+        LoopLEDFunction();
     }
     // Print local IP address and start web server
     Serial.println("");
     Serial.println("WiFi connected.");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
+
+    SendMorze(std::string((const char *)WiFi.localIP().toString().c_str()));
 
     currentTime = millis();
 
