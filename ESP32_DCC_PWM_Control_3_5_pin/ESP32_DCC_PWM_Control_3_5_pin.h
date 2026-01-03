@@ -2,6 +2,6 @@
 
 //#define DCC_1_PWM
 //#define DCC_2_PWM
-#define DCC_2_PWM
-
+//#define DCC_2_PWM
+#define DCC_4_PWM
 #define DCC_Commander

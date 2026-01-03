@@ -4,7 +4,6 @@
 #define _DCCSimpleWebServer_ 1
 
 #include "Arduino.h"
-#include <driver/timer.h>
 
 #define TIMER_BASE_CLK APB_CLK_FREQ
 
@@ -20,7 +19,7 @@
 #if defined DCC_Commander
 #else
 
-#include "ESP32TimerInterrupt.h"
+//#include "ESP32TimerInterrupt.h"
 
 #if defined DCC_4_PWM
 #define PWM_RAIL1_OUT_PIN  18
@@ -53,6 +52,7 @@ uint64_t isrBootTimeLoopLast;
 uint8_t firstStep = 1;
 const uint8_t speedMap[] = {0,20,23,25,27,30,32,34,36,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,75,80,85,90,95,99};
 
+#include "LEDFunction.h"
 
 void IRAM_ATTR OnTimerPWM() {
 
@@ -127,7 +127,10 @@ void IRAM_ATTR OnTimerPWM() {
                 isrTimerAlarmValue = isrPWMvalueNow;
         }
     }
-    timerAlarm(timer, isrTimerAlarmValue, true, 0);
+
+    // timerAlarmWrite(phaseTimer, isrTimerAlarmValue, true); // old
+    timerWrite(phaseTimer, 0); // new
+    timerAlarm(phaseTimer, isrTimerAlarmValue, true, 0); // new
 
     if (isrPWMvalueNow > 0)
         digitalWrite(PWM_RAILEN_OUT_PIN, true);
@@ -161,28 +164,27 @@ void SetupPWMCommander()
 
     isrPWMplus = false;
 
-    // Create semaphore to inform us when the timer has fired
+    // Create semaphore to inform us when the phaseTimer has fired
     timerSemaphore = xSemaphoreCreateBinary();
 
-    // old begin
-    // Use 1st timer of 4 (counted from zero).
+    // Use 1st phaseTimer of 4 (counted from zero).
     // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
     // info).
-    //timer = timerBegin(0, 80, true);
-    // old end
-    // 
-    // Set timer frequency to 1Mhz
-    timer = timerBegin(1000000);
+    // phaseTimer = timerBegin(0, 80, true); // old
+    phaseTimer = timerBegin(1000000); // new
 
-    // Attach OnTimer function to our timer.
-    timerAttachInterrupt(timer, &OnTimerPWM);
+    // Attach OnTimer function to our phaseTimer.
+    // timerAttachInterrupt(phaseTimer, &OnTimerPWM, true); // old
+    timerAttachInterrupt(phaseTimer, &OnTimerPWM); // new
 
     // Set alarm to call OnTimer function every second (value in microseconds).
     // Repeat the alarm (third parameter)
-    timerAlarm(timer, 1000000, true, 0);
+    // timerAlarmWrite(phaseTimer, 1000000, true); // old
+    timerAlarm(phaseTimer, 1000000, true, 0); // new
 
     // Start an alarm
-    //timerAlarmEnable(timer);
+    // timerAlarmEnable(phaseTimer); // old
+    timerStart(phaseTimer); // new
 
 }
 
@@ -318,6 +320,8 @@ void UpdateDirAndPWMValue()
 
 void LoopPWMCommander(std::string& command)
 {
+    LoopLEDFunction();
+
     if (command.size() > 0) 
         ReadWebCommand(command);
 

@@ -109,7 +109,7 @@ bool WebCommandParser::GetDirectionAndSpeed(bool& forward, uint8_t& speed) const
 
 bool WebCommandParser::IsAlertStop() const
 {
-    if ((result_nr == 2) && ((result[1] & 0xEF) == 0x41))
+    if ((result_nr == 2) && ((result[1] & 0xCF) == 0x41))
         return true;
     return false;
 }

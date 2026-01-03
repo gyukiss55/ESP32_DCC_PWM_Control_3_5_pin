@@ -14,7 +14,7 @@
 
 #if defined DCC_Commander
 
-#include "ESP32TimerInterrupt.h"
+//#include "ESP32TimerInterrupt.h"
 
 #define PARAMNAME_CHANNEL "ch"
 #define PARAMNAME_DCCVALUE "dcc"
@@ -38,7 +38,7 @@
 #endif
 
 #define DCC_RAILEN_OUT_PIN  4
-#define DCC_POCKET_OUT_PIN  2
+//#define DCC_POCKET_OUT_PIN  2
 #define DCC_RAIL_IN_PIN    15
 
 #define DCC_1HALFBITTIME    58
@@ -158,10 +158,10 @@ void IRAM_ATTR OnTimerDCC() {
     portEXIT_CRITICAL_ISR(&timerMux);
 
     if (isrStatus == 0){
-        digitalWrite(DCC_POCKET_OUT_PIN, false);
+        //digitalWrite(DCC_POCKET_OUT_PIN, false);
     }
     else {
-        digitalWrite(DCC_POCKET_OUT_PIN, true);
+        //digitalWrite(DCC_POCKET_OUT_PIN, true);
     }
 
     if ((!(isrStatus & 1)) && ((isrStatus  >> 1) > isrPacket[isrChannel][0] + 1))
@@ -222,10 +222,13 @@ void IRAM_ATTR OnTimerDCC() {
             //digitalWrite(DCC_RAILEN_OUT_PIN, true);
         }
     }
+    timerWrite(phaseTimer, 0); // new
     if (isrBit)
-        timerAlarm(timer, DCC_1HALFBITTIME, true, 0);
+        // timerAlarmWrite(phaseTimer, DCC_1HALFBITTIME, true); // old
+        timerAlarm(phaseTimer, DCC_1HALFBITTIME, true, 0); // new
     else
-        timerAlarm(timer, DCC_0HALFBITTIME, true, 0);
+        // timerAlarmWrite(phaseTimer, DCC_0HALFBITTIME, true); // old
+        timerAlarm(phaseTimer, DCC_0HALFBITTIME, true, 0); // new
 
    //digitalWrite(DCC_RAIL2_OUT_PIN, false);//debug
    digitalWrite(DCC_RAILEN_OUT_PIN, true);
@@ -279,30 +282,34 @@ void SetupDCCCommander()
     pinMode(DCC_RAIL4_OUT_PIN, OUTPUT);
     digitalWrite(DCC_RAIL4_OUT_PIN, false);
 #endif
-    pinMode(DCC_POCKET_OUT_PIN, OUTPUT);
-    digitalWrite(DCC_POCKET_OUT_PIN, false);
+    //pinMode(DCC_POCKET_OUT_PIN, OUTPUT);
+    //digitalWrite(DCC_POCKET_OUT_PIN, false);
 
     //isrCRC1 = isrAddr1 ^ isrComm1;
     //isrCRC2 = isrAddr2 ^ isrComm2;
 
-    // Create semaphore to inform us when the timer has fired
+    // Create semaphore to inform us when the phaseTimer has fired
     timerSemaphore = xSemaphoreCreateBinary();
 
-    // Use 1st timer of 4 (counted from zero).
+    // Use 1st phaseTimer of 4 (counted from zero).
     // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
     // info).
-    //timer = timerBegin(0, 80, true);
-    timer = timerBegin(1000000);
 
-    // Attach OnTimer function to our timer.
-    timerAttachInterrupt(timer, &OnTimerDCC);
+    // phaseTimer = timerBegin(0, 80, true); // old
+    phaseTimer = timerBegin(1000000); // new - 1 usec resolution
+
+    // Attach OnTimer function to our phaseTimer.
+    // timerAttachInterrupt(phaseTimer, &OnTimerDCC, true); // old
+    timerAttachInterrupt(phaseTimer, &OnTimerDCC); // new
 
     // Set alarm to call OnTimer function every second (value in microseconds).
     // Repeat the alarm (third parameter)
-    timerAlarm(timer, 1000000, true, 0);
+    // timerAlarmWrite(phaseTimer, 1000000, true); // old
+    timerAlarm(phaseTimer, 1000000, true, 0); // new
 
     // Start an alarm
-    //timerAlarmEnable(timer);
+    // timerAlarmEnable(phaseTimer); // old
+    timerStart(phaseTimer); // new
 
 }
 

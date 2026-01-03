@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #ifndef _PWMCOMMANDER_H_
 
 void SetupPWMCommander();

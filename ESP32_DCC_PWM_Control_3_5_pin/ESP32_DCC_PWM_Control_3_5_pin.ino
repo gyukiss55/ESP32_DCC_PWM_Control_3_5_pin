@@ -2,7 +2,7 @@
 
 #define _DCCSimpleWebServer_ 1
 
-#define version "1.02"
+#define version "1.05"
 
 #include "ESP32_DCC_PWM_Control_3_5_pin.h"
 
