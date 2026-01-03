@@ -21,7 +21,7 @@ void setup ()
 	SetupDCCCommander ();
 	Serial.print("ESP32_DCC_PWM_Control_3_5_pin /DCC  Version ");
 #else
-	SetupPWMCommander();
+	SetupPWMCommander(); 
 	Serial.print("ESP32_DCC_PWM_Control_3_5_pin /PWM  Version ");
 #endif
 	Serial.println(version);
