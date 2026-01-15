@@ -4,7 +4,7 @@
 #define _DCCSimpleWebServer_ 1
 
 #include "Arduino.h"
-#define TIMER_BASE_CLK APB_CLK_FREQ
+//#define TIMER_BASE_CLK APB_CLK_FREQ
 
 #include "ESP32_DCC_PWM_Control_3_5_pin.h"
 #include "DCCWebCommandParser.h"

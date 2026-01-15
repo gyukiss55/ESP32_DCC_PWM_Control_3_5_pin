@@ -5,14 +5,12 @@
 
 #include "Arduino.h"
 
-#define TIMER_BASE_CLK APB_CLK_FREQ
+//#define TIMER_BASE_CLK APB_CLK_FREQ
 
 
 #include "ESP32_DCC_PWM_Control_3_5_pin.h"
 #include "DCCWebCommandParser.h"
 #include "Common.h"
-
-#include "PWMCommander.h"
 
 // 4+1 bit control
 
@@ -20,6 +18,8 @@
 #else
 
 //#include "ESP32TimerInterrupt.h"
+
+#include "PWMCommander.h"
 
 #if defined DCC_4_PWM
 #define PWM_RAIL1_OUT_PIN  18
