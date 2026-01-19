@@ -61,10 +61,14 @@ MorzeMap MorzeABC[] = {
 static std::vector<int> currentLedCommand;
 static int currentLedCommandIndex = 0;
 static int64_t nextTimeStamp = 0;
+static bool ledState = false;
 
 
 void SendMorze(const std::string& str)
 {
+	if (!ledState)
+		return;
+
 	std::vector<int> ledCommand;
 
 	for (char c : str) {
@@ -115,11 +119,14 @@ void SetupLEDFunction()
 	Serial.println("SetupLEDFunction");
 	pinMode(ONBOARD_LED_PIN, OUTPUT);
 	digitalWrite(ONBOARD_LED_PIN, LOW);
+	ledState = true;
 }
 
 
 void LoopLEDFunction()
 {
+	if (!ledState)
+		return;
 	int64_t ts = esp_timer_get_time();
 	if (nextTimeStamp < ts) {
 		if (currentLedCommandIndex < currentLedCommand.size()) {

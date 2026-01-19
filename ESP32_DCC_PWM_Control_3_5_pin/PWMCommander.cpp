@@ -75,7 +75,7 @@ void IRAM_ATTR OnTimerPWM() {
             if (isrPWMvalueNow < 0)
                 isrPWMvalueNow = 0;
             if( isrPWMvalueNow >= PWM_PERIOD)
-                isrPWMvalueNow = PWM_PERIOD -1;
+                isrPWMvalueNow = PWM_PERIOD - 1;
         }
     }
 
@@ -128,11 +128,13 @@ void IRAM_ATTR OnTimerPWM() {
         }
     }
 
-    // timerAlarmWrite(phaseTimer, isrTimerAlarmValue, true); // old
-    timerWrite(phaseTimer, 0); // new
-    timerAlarm(phaseTimer, isrTimerAlarmValue, true, 0); // new
+    timerWrite(phaseTimer, 0);
+    if (isrTimerAlarmValue > 9)
+        timerAlarm(phaseTimer, isrTimerAlarmValue, true, 0); 
+    else
+        timerAlarm(phaseTimer, PWM_PERIOD / 2, true, 0);
 
-    if (isrPWMvalueNow > 0)
+    if (isrPWMvalueNow > 9)
         digitalWrite(PWM_RAILEN_OUT_PIN, true);
 }
 
@@ -167,24 +169,13 @@ void SetupPWMCommander()
     // Create semaphore to inform us when the phaseTimer has fired
     timerSemaphore = xSemaphoreCreateBinary();
 
-    // Use 1st phaseTimer of 4 (counted from zero).
-    // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
-    // info).
-    // phaseTimer = timerBegin(0, 80, true); // old
-    phaseTimer = timerBegin(1000000); // new
+    phaseTimer = timerBegin(1000000); // 1MHz
 
-    // Attach OnTimer function to our phaseTimer.
-    // timerAttachInterrupt(phaseTimer, &OnTimerPWM, true); // old
-    timerAttachInterrupt(phaseTimer, &OnTimerPWM); // new
+    timerAttachInterrupt(phaseTimer, &OnTimerPWM);
 
-    // Set alarm to call OnTimer function every second (value in microseconds).
-    // Repeat the alarm (third parameter)
-    // timerAlarmWrite(phaseTimer, 1000000, true); // old
-    timerAlarm(phaseTimer, 1000000, true, 0); // new
+    timerAlarm(phaseTimer, 1000000, true, 0); // 1st 1 sec
 
-    // Start an alarm
-    // timerAlarmEnable(phaseTimer); // old
-    timerStart(phaseTimer); // new
+	timerStart(phaseTimer); // start
 
 }
 
